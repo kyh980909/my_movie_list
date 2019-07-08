@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'Database/DBHelper.dart';
 import 'Model/movie.dart';
 
-import 'addMovieScreen.dart';
+import 'add_movie_screen.dart';
 
 Future<List<Movie>> getMoviesFromDB() async {
   var dbHelper = DBHelper();

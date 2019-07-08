@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'Database/DBHelper.dart';
 import 'Model/movie.dart';
+import 'dart:io' show Platform;
 
 class AddMovieScreen extends StatefulWidget {
   @override
@@ -38,11 +39,11 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                 ),
                 Text(
                   '영화를 본 날짜 : ',
-                  style: TextStyle(fontSize: 24.0),
+                  style: TextStyle(fontSize: 20.0),
                 ),
                 Text(
                   '$date',
-                  style: TextStyle(fontSize: 24.0),
+                  style: TextStyle(fontSize: 20.0),
                 ),
                 IconButton(
                   icon: Icon(Icons.calendar_today),
@@ -62,8 +63,15 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
           ),
           RaisedButton(
             onPressed: () {
-              submitMovie(title.text);
-              Navigator.pop(context);
+              if(title.text == '') {
+                Fluttertoast.showToast(msg: '영화명을 입력해주세요', toastLength: Toast.LENGTH_SHORT);
+              }
+              else if(date == '') {
+                Fluttertoast.showToast(msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
+              } else {
+                submitMovie(title.text);
+                Navigator.pop(context);
+              }
             },
             child: Text('저장'),
           )
