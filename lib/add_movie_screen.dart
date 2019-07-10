@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'Database/DBHelper.dart';
 import 'Model/movie.dart';
-import 'dart:io' show Platform;
 
 class AddMovieScreen extends StatefulWidget {
   @override
@@ -12,10 +11,16 @@ class AddMovieScreen extends StatefulWidget {
 }
 
 class _AddMovieScreenState extends State<AddMovieScreen> {
-  TextEditingController title = TextEditingController(); // 영화명 텍스트 필스 값 컨트롤 객체
+  TextEditingController title = TextEditingController();
+
+  @override
+  initState() {
+    super.initState();
+  }
 
   final df = DateFormat('yyyy년 MM월 dd일');
   String date = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,11 +68,12 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
           ),
           RaisedButton(
             onPressed: () {
-              if(title.text == '') {
-                Fluttertoast.showToast(msg: '영화명을 입력해주세요', toastLength: Toast.LENGTH_SHORT);
-              }
-              else if(date == '') {
-                Fluttertoast.showToast(msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
+              if (title.text == '') {
+                Fluttertoast.showToast(
+                    msg: '영화명을 입력해주세요', toastLength: Toast.LENGTH_SHORT);
+              } else if (date == '') {
+                Fluttertoast.showToast(
+                    msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
               } else {
                 submitMovie(title.text);
                 Navigator.pop(context);
