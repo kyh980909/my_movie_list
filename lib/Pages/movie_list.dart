@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:my_movie_list/Pages/detail_info.dart';
 import '../Database/DBHelper.dart';
 import '../Model/movie.dart';
 
@@ -49,6 +49,14 @@ class _MovieListState extends State<MovieList> {
                               base64Decode(snapshot.data[index].ticket)),
                           title: Text(snapshot.data[index].title),
                           subtitle: Text(snapshot.data[index].date),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DetailInfo(
+                                          movie: snapshot.data[index],
+                                        )));
+                          },
                         ),
                         secondaryActions: <Widget>[
                           IconSlideAction(

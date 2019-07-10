@@ -46,6 +46,21 @@ class DBHelper {
     return movies;
   }
 
+  Future<Movie> getMovie(Movie movieInfo) async {
+    var dbCon = await db;
+    List<Map> list = await dbCon
+        .rawQuery('select * from $tableName where id=${movieInfo.id}');
+
+    Movie movie = new Movie();
+
+    movie.id = list[0]['id'];
+    movie.title = list[0]['title'];
+    movie.date = list[0]['date'];
+    movie.ticket = list[0]['ticket'];
+
+    return movie;
+  }
+
   void addMovie(Movie movie) async {
     var dbCon = await db;
     String sql =
