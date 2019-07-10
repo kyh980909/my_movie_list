@@ -1,9 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'Database/DBHelper.dart';
-import 'Model/movie.dart';
+import '../Database/DBHelper.dart';
+import '../Model/movie.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddMovieScreen extends StatefulWidget {
   @override
@@ -12,6 +15,7 @@ class AddMovieScreen extends StatefulWidget {
 
 class _AddMovieScreenState extends State<AddMovieScreen> {
   TextEditingController title = TextEditingController();
+  File _image;
 
   @override
   initState() {
@@ -62,9 +66,19 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                       });
                     }, currentTime: DateTime.now(), locale: LocaleType.ko);
                   },
-                )
+                ),
               ],
             ),
+          ),
+          IconButton(icon: Icon(Icons.camera), onPressed: getImageFromGallery),
+          Center(
+            child: _image == null
+                ? Text('No image selected')
+                : Image.file(
+                    _image,
+                    height: 300,
+                    width: 300,
+                  ),
           ),
           RaisedButton(
             onPressed: () {
@@ -74,28 +88,54 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               } else if (date == '') {
                 Fluttertoast.showToast(
                     msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
+              } else if (_image == null) {
+                Fluttertoast.showToast(
+                    msg: '사진을 업로드해주세요.', toastLength: Toast.LENGTH_SHORT);
               } else {
-                submitMovie(title.text);
+                submitMovie(title.text, Image.file(_image));
                 Navigator.pop(context);
               }
             },
             child: Text('저장'),
-          )
+          ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: getImage,
+        tooltip: 'Pick Image',
+        child: Icon(Icons.camera_alt),
       ),
     );
   }
 
-  void submitMovie(String title) {
+  Future submitMovie(String title, Image ticket) async {
     var movie = Movie();
+
+    List<int> imageBytes = await _image.readAsBytes();
+    String base64Image = base64Encode(imageBytes);
 
     movie.title = title;
     movie.date = date;
+    movie.ticket = base64Image;
 
     var dbHelper = DBHelper();
     dbHelper.addMovie(movie);
 
     Fluttertoast.showToast(
         msg: 'Movie was saved', toastLength: Toast.LENGTH_SHORT);
+  }
+
+  Future getImage() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    setState(() {
+      _image = image;
+    });
+  }
+
+  Future getImageFromGallery() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      _image = image;
+    });
   }
 }

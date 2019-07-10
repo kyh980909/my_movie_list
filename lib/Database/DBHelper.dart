@@ -24,9 +24,8 @@ class DBHelper {
 
   void onCreateFunc(Database db, int version) async {
     await db.execute(
-        'create table $tableName(id integer primary key autoincrement, title text, date text);');
+        'create table $tableName(id integer primary key autoincrement, title text, date text, ticket text);');
   }
-
 
   // DB 에서 영화 목록 불러오기
   Future<List<Movie>> getMovies() async {
@@ -34,11 +33,12 @@ class DBHelper {
     List<Map> list = await dbCon.rawQuery('select * from $tableName');
     List<Movie> movies = List();
 
-    for (int i = 0; i < list.length; i ++) {
+    for (int i = 0; i < list.length; i++) {
       Movie movie = new Movie();
       movie.id = list[i]['id'];
       movie.title = list[i]['title'];
       movie.date = list[i]['date'];
+      movie.ticket = list[i]['ticket'];
 
       movies.add(movie);
     }
@@ -48,7 +48,8 @@ class DBHelper {
 
   void addMovie(Movie movie) async {
     var dbCon = await db;
-    String sql = 'insert into $tableName(title, date) values ("${movie.title}","${movie.date}")';
+    String sql =
+        'insert into $tableName(title, date, ticket) values ("${movie.title}","${movie.date}", "${movie.ticket}")';
     await dbCon.transaction((transaction) async {
       return await transaction.rawInsert(sql);
     });
@@ -56,7 +57,8 @@ class DBHelper {
 
   void updateMoive(Movie movie) async {
     var dbCon = await db;
-    String sql = 'update $tableName set name = "${movie.title}, ${movie.date}" where id=${movie.id}';
+    String sql =
+        'update $tableName set name = "${movie.title}, ${movie.date}", ${movie.ticket}" where id=${movie.id}';
     await dbCon.transaction((transaction) async {
       return await transaction.rawQuery(sql);
     });

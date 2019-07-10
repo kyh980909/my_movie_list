@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'Database/DBHelper.dart';
-import 'Model/movie.dart';
+import '../Database/DBHelper.dart';
+import '../Model/movie.dart';
 
 import 'add_movie_screen.dart';
 
@@ -43,6 +45,8 @@ class _MovieListState extends State<MovieList> {
                         actionPane: SlidableDrawerActionPane(),
                         actionExtentRatio: 0.20,
                         child: ListTile(
+                          leading: Image.memory(
+                              base64Decode(snapshot.data[index].ticket)),
                           title: Text(snapshot.data[index].title),
                           subtitle: Text(snapshot.data[index].date),
                         ),
