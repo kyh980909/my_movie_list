@@ -8,22 +8,25 @@ import '../Model/movie.dart';
 
 import 'add_movie_screen.dart';
 
-Future<List<Movie>> getMoviesFromDB() async {
-  var dbHelper = DBHelper();
-  Future<List<Movie>> movies = dbHelper.getMovies();
-
-  return movies;
-}
-
 class MovieList extends StatefulWidget {
   @override
   _MovieListState createState() => _MovieListState();
 }
 
 class _MovieListState extends State<MovieList> {
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
+
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<List<Movie>> getMoviesFromDB() async {
+    var dbHelper = DBHelper();
+    Future<List<Movie>> movies = dbHelper.getMovies();
+
+    return movies;
   }
 
   @override
@@ -38,45 +41,10 @@ class _MovieListState extends State<MovieList> {
             builder: (context, snapshot) {
               if (snapshot.data != null) {
                 if (snapshot.hasData) {
-                  return ListView.builder(
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index) {
-                      return Slidable(
-                        actionPane: SlidableDrawerActionPane(),
-                        actionExtentRatio: 0.20,
-                        child: ListTile(
-                          leading: Image.memory(
-                              base64Decode(snapshot.data[index].ticket)),
-                          title: Text(snapshot.data[index].title),
-                          subtitle: Text(snapshot.data[index].date),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => DetailInfo(
-                                          movie: snapshot.data[index],
-                                        )));
-                          },
-                        ),
-                        secondaryActions: <Widget>[
-                          IconSlideAction(
-                            icon: Icons.delete,
-                            color: Colors.red,
-                            caption: 'Deleted',
-                            onTap: () {
-                              var dbHelper = DBHelper();
-                              dbHelper.deleteMoive(snapshot.data[index]);
-                              Fluttertoast.showToast(
-                                  msg: 'Movie was deleted',
-                                  toastLength: Toast.LENGTH_SHORT);
-                              setState(() {
-                                getMoviesFromDB();
-                              });
-                            },
-                          )
-                        ],
-                      );
-                    },
+                  return RefreshIndicator(
+                    key: _refreshIndicatorKey,
+                    child: buildMovieListView(snapshot),
+                    onRefresh: _refresh,
                   );
                 }
               }
@@ -94,5 +62,56 @@ class _MovieListState extends State<MovieList> {
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  ListView buildMovieListView(AsyncSnapshot<List<Movie>> snapshot) {
+    return ListView.builder(
+      itemCount: snapshot.data.length,
+      itemBuilder: (context, index) {
+        return Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.20,
+          child: ListTile(
+            leading: Image.memory(base64Decode(snapshot.data[index].ticket)),
+            title: Text(snapshot.data[index].title),
+            subtitle: Text(snapshot.data[index].date),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DetailInfo(
+                            movie: snapshot.data[index],
+                          )));
+            },
+          ),
+          secondaryActions: <Widget>[
+            IconSlideAction(
+              icon: Icons.delete,
+              color: Colors.red,
+              caption: 'Deleted',
+              onTap: () {
+                var dbHelper = DBHelper();
+                dbHelper.deleteMovie(snapshot.data[index]);
+                Fluttertoast.showToast(
+                    msg: 'Movie was deleted', toastLength: Toast.LENGTH_SHORT);
+                setState(() {
+                  getMoviesFromDB();
+                });
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  Future _refresh() {
+    var dbHelper = DBHelper();
+
+    return dbHelper.getMovies().then((_) {
+      setState(() {
+        getMoviesFromDB();
+      });
+    });
   }
 }

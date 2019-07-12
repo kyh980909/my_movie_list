@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../Database/DBHelper.dart';
 import '../Model/movie.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class AddMovieScreen extends StatefulWidget {
   @override
@@ -16,14 +17,14 @@ class AddMovieScreen extends StatefulWidget {
 class _AddMovieScreenState extends State<AddMovieScreen> {
   TextEditingController title = TextEditingController();
   File _image;
+  final df = DateFormat('yyyy년 MM월 dd일');
+  String date = '';
+  double score;
 
   @override
   initState() {
     super.initState();
   }
-
-  final df = DateFormat('yyyy년 MM월 dd일');
-  String date = '';
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
       appBar: AppBar(
         title: Text('Add a new movie'),
       ),
-      body: Column(
+      body: ListView(
         children: <Widget>[
           TextField(
             controller: title,
@@ -76,27 +77,50 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                 ? Text('No image selected')
                 : Image.file(
                     _image,
-                    height: 300,
+                    height: 400,
                     width: 300,
                   ),
           ),
-          RaisedButton(
-            onPressed: () {
-              if (title.text == '') {
-                Fluttertoast.showToast(
-                    msg: '영화명을 입력해주세요', toastLength: Toast.LENGTH_SHORT);
-              } else if (date == '') {
-                Fluttertoast.showToast(
-                    msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
-              } else if (_image == null) {
-                Fluttertoast.showToast(
-                    msg: '사진을 업로드해주세요.', toastLength: Toast.LENGTH_SHORT);
-              } else {
-                submitMovie(title.text, Image.file(_image));
-                Navigator.pop(context);
-              }
-            },
-            child: Text('저장'),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
+            child: Center(
+              child: FlutterRatingBar(
+                  initialRating: 0,
+                  fillColor: Colors.amber,
+                  borderColor: Colors.amber.withAlpha(50),
+                  allowHalfRating: true,
+                  onRatingUpdate: (rating) {
+                    score = rating;
+                    print(rating);
+                  }),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 160, right: 160, bottom: 30.0),
+            child: RaisedButton(
+              onPressed: () {
+                if (title.text == '') {
+                  Fluttertoast.showToast(
+                      msg: '영화명을 입력해주세요', toastLength: Toast.LENGTH_SHORT);
+                } else if (date == '') {
+                  Fluttertoast.showToast(
+                      msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
+                } else if (_image == null) {
+                  Fluttertoast.showToast(
+                      msg: '사진을 업로드해주세요.', toastLength: Toast.LENGTH_SHORT);
+                } else {
+                  submitMovie(title.text, Image.file(_image));
+                  Navigator.pop(context);
+                }
+              },
+              child: Text(
+                '저장',
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Color(0xff3fc4fe), //Color.fromRGBO(63, 196, 254, 100),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+            ),
           ),
         ],
       ),
@@ -117,6 +141,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
     movie.title = title;
     movie.date = date;
     movie.ticket = base64Image;
+    movie.score = score.toString();
 
     var dbHelper = DBHelper();
     dbHelper.addMovie(movie);

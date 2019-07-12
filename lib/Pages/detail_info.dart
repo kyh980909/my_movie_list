@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:my_movie_list/Model/movie.dart';
 import '../Database/DBHelper.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class DetailInfo extends StatefulWidget {
   final Movie movie;
@@ -27,33 +27,52 @@ class _DetailInfoState extends State<DetailInfo> {
         appBar: AppBar(
           title: Text('Detail Info'),
         ),
-        body: Container(
-          child: FutureBuilder<Movie>(
-            future: getMovieFromDB(),
-            builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                if (snapshot.hasData) {
-                  return Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Column(
-                        children: <Widget>[
-                          Image.memory(base64Decode(snapshot.data.ticket)),
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 10.0),
-                          ),
-                          Text(snapshot.data.id.toString()),
-                          Text(snapshot.data.date),
-                          Text(snapshot.data.title),
-                        ],
-                      ));
-                }
-              }
-              return Container(
-                alignment: AlignmentDirectional.center,
-                child: CircularProgressIndicator(),
-              );
-            },
-          ),
+        body: ListView(
+          children: <Widget>[
+            Center(
+              child: Container(
+                child: FutureBuilder<Movie>(
+                  future: getMovieFromDB(),
+                  builder: (context, snapshot) {
+                    if (snapshot.data != null) {
+                      if (snapshot.hasData) {
+                        return Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Column(
+                              children: <Widget>[
+                                Text(
+                                  snapshot.data.date,
+                                  style: TextStyle(fontSize: 30.0),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10.0),
+                                ),
+                                Image.memory(base64Decode(snapshot.data.ticket), height: 300, width: 300,),
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: 10.0),
+                                ),
+                                Text(
+                                  snapshot.data.title,
+                                  style: TextStyle(fontSize: 30.0),
+                                ),
+                                FlutterRatingBarIndicator(
+                                  itemCount: 5,
+                                  rating: double.parse(snapshot.data.score),
+                                  emptyColor: Colors.amber.withAlpha(50),
+                                ),
+                              ],
+                            ));
+                      }
+                    }
+                    return Container(
+                      alignment: AlignmentDirectional.center,
+                      child: CircularProgressIndicator(),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ));
   }
 }

@@ -17,14 +17,13 @@ class DBHelper {
   initDB() async {
     io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "movie.db");
-
     var db = await openDatabase(path, version: 1, onCreate: onCreateFunc);
     return db;
   }
 
   void onCreateFunc(Database db, int version) async {
     await db.execute(
-        'create table $tableName(id integer primary key autoincrement, title text, date text, ticket text);');
+        'create table $tableName(id integer primary key autoincrement, title text, date text, ticket text, score text);');
   }
 
   // DB 에서 영화 목록 불러오기
@@ -39,6 +38,7 @@ class DBHelper {
       movie.title = list[i]['title'];
       movie.date = list[i]['date'];
       movie.ticket = list[i]['ticket'];
+      movie.score = list[i]['score'];
 
       movies.add(movie);
     }
@@ -57,6 +57,7 @@ class DBHelper {
     movie.title = list[0]['title'];
     movie.date = list[0]['date'];
     movie.ticket = list[0]['ticket'];
+    movie.score = list[0]['score'];
 
     return movie;
   }
@@ -64,22 +65,22 @@ class DBHelper {
   void addMovie(Movie movie) async {
     var dbCon = await db;
     String sql =
-        'insert into $tableName(title, date, ticket) values ("${movie.title}","${movie.date}", "${movie.ticket}")';
+        'insert into $tableName(title, date, ticket, score) values ("${movie.title}","${movie.date}", "${movie.ticket}", "${movie.score}")';
     await dbCon.transaction((transaction) async {
       return await transaction.rawInsert(sql);
     });
   }
 
-  void updateMoive(Movie movie) async {
+  void updateMovie(Movie movie) async {
     var dbCon = await db;
     String sql =
-        'update $tableName set name = "${movie.title}, ${movie.date}", ${movie.ticket}" where id=${movie.id}';
+        'update $tableName set name = "${movie.title}, ${movie.date}", ${movie.ticket}, ${movie.score}" where id=${movie.id}';
     await dbCon.transaction((transaction) async {
       return await transaction.rawQuery(sql);
     });
   }
 
-  void deleteMoive(Movie movie) async {
+  void deleteMovie(Movie movie) async {
     var dbCon = await db;
     String sql = 'delete from $tableName where id=${movie.id}';
     await dbCon.transaction((transaction) async {
