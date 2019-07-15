@@ -44,10 +44,11 @@ class _DetailInfoState extends State<DetailInfo> {
                                   snapshot.data.date,
                                   style: TextStyle(fontSize: 30.0),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10.0),
+                                Image.memory(
+                                  base64Decode(snapshot.data.ticket),
+                                  height: 300,
+                                  width: 300,
                                 ),
-                                Image.memory(base64Decode(snapshot.data.ticket), height: 300, width: 300,),
                                 Padding(
                                   padding: EdgeInsets.only(bottom: 10.0),
                                 ),
@@ -60,6 +61,12 @@ class _DetailInfoState extends State<DetailInfo> {
                                   rating: double.parse(snapshot.data.score),
                                   emptyColor: Colors.amber.withAlpha(50),
                                 ),
+                                Padding(
+                                    padding: EdgeInsets.fromLTRB(10, 30, 10, 0),
+                                    child: Text(
+                                      snapshot.data.review,
+                                      style: TextStyle(fontSize: 30.0),
+                                    ))
                               ],
                             ));
                       }
